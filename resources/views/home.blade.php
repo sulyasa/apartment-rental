@@ -27,8 +27,13 @@
             <form action="{{ route('apartments.index') }}" method="GET" class="max-w-5xl mx-auto bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20">
                 <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
                     <div class="md:col-span-2">
-                        <input type="text" name="city" placeholder="Город или район" 
+                        <input type="text" name="city" list="cities_list" autocomplete="off" placeholder="Город или район" 
                             class="w-full px-4 py-3 bg-white/90 rounded-xl text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <datalist id="cities_list">
+                            @foreach($cities as $cityOption)
+                                <option value="{{ $cityOption }}">
+                            @endforeach
+                        </datalist>
                     </div>
                     <div>
                         <select name="type" class="w-full px-4 py-3 bg-white/90 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
@@ -107,37 +112,54 @@
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             @foreach($featured as $apartment)
-                <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group">
-                    <div class="relative h-56 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center overflow-hidden">
-                        <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition"></div>
-                        <i class="fas fa-building text-7xl text-white/30"></i>
-                        <span class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium text-gray-700">
-                            {{ $apartment->type }}
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group flex flex-col">
+                    <div class="relative h-64 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center overflow-hidden">
+                        <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300"></div>
+                        <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="{{ $apartment->title }}" class="absolute inset-0 w-full h-full object-cover mix-blend-overlay group-hover:scale-110 transition-transform duration-700">
+                        <span class="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-4 py-1.5 rounded-full text-sm font-semibold text-gray-800 shadow-sm">
+                            @if($apartment->type === 'flat') Квартира
+                            @elseif($apartment->type === 'house') Дом
+                            @elseif($apartment->type === 'studio') Студия
+                            @else Комната @endif
                         </span>
                         @if($apartment->agent)
-                        <span class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium text-indigo-600">
-                            <i class="fas fa-check-circle"></i> Верифицировано
+                        <span class="absolute top-4 right-4 bg-indigo-600/90 backdrop-blur-md px-4 py-1.5 rounded-full text-sm font-semibold text-white shadow-sm flex items-center gap-1.5">
+                            <i class="fas fa-shield-check"></i> Надежный агент
                         </span>
                         @endif
                     </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-indigo-600 transition">{{ $apartment->title }}</h3>
-                        <p class="text-gray-600 mb-3 flex items-center">
-                            <i class="fas fa-map-marker-alt text-indigo-500 mr-2"></i> 
-                            {{ $apartment->city }}, {{ Str::limit($apartment->address, 25) }}
-                        </p>
-                        <div class="flex items-center space-x-4 text-sm text-gray-500 mb-4">
-                            <span class="flex items-center"><i class="fas fa-bed mr-1"></i> {{ $apartment->rooms }} ком.</span>
-                            <span class="flex items-center"><i class="fas fa-ruler-combined mr-1"></i> {{ $apartment->area }} м²</span>
-                            <span class="flex items-center"><i class="fas fa-layer-group mr-1"></i> эт. {{ $apartment->floor }}</span>
+                    <div class="p-6 flex-grow flex flex-col">
+                        <div class="flex items-center gap-2 text-sm text-indigo-600 font-medium mb-3">
+                            <i class="fas fa-map-marker-alt"></i> 
+                            <span>{{ $apartment->city }}</span>
                         </div>
-                        <div class="flex justify-between items-center pt-4 border-t">
-                            <div>
-                                <span class="text-2xl font-bold text-indigo-600">{{ number_format($apartment->price, 0, '', ' ') }} ₽</span>
-                                <span class="text-gray-500 text-sm">/мес</span>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors line-clamp-2">{{ $apartment->title }}</h3>
+                        <p class="text-gray-500 text-sm mb-6 line-clamp-1">{{ $apartment->address }}</p>
+                        
+                        <div class="grid grid-cols-3 gap-4 mb-6 py-4 border-y border-gray-100">
+                            <div class="flex flex-col items-center justify-center text-center">
+                                <i class="fas fa-door-open text-gray-400 mb-1 text-lg"></i>
+                                <span class="text-sm font-medium text-gray-700">{{ $apartment->rooms }} ком.</span>
                             </div>
-                            <a href="{{ route('apartments.show', $apartment) }}" class="bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-700 transition">
-                                Подробнее
+                            <div class="flex flex-col items-center justify-center text-center border-x border-gray-100">
+                                <i class="fas fa-vector-square text-gray-400 mb-1 text-lg"></i>
+                                <span class="text-sm font-medium text-gray-700">{{ $apartment->area }} м²</span>
+                            </div>
+                            <div class="flex flex-col items-center justify-center text-center">
+                                <i class="fas fa-layer-group text-gray-400 mb-1 text-lg"></i>
+                                <span class="text-sm font-medium text-gray-700">{{ $apartment->floor }} этаж</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-auto flex justify-between items-end pt-2">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-0.5">Аренда в месяц</p>
+                                <div class="flex items-baseline gap-1">
+                                    <span class="text-2xl font-bold text-gray-900">{{ number_format($apartment->price, 0, '', ' ') }} ₽</span>
+                                </div>
+                            </div>
+                            <a href="{{ route('apartments.show', $apartment) }}" class="flex items-center justify-center w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                <i class="fas fa-arrow-right"></i>
                             </a>
                         </div>
                     </div>

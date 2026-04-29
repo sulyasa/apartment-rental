@@ -13,6 +13,11 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        if (User::count() > 0) {
+            $this->command->info('База данных уже наполнена. Пропуск сидера.');
+            return;
+        }
+
         // Создаем пользователей
         $user1 = User::create([
             'name' => 'Иван Иванов',

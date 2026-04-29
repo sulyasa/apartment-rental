@@ -65,27 +65,49 @@
             @else
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     @foreach($apartments as $apartment)
-                        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
-                            <div class="h-40 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                                <i class="fas fa-building text-5xl text-white opacity-50"></i>
+                        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group flex flex-col">
+                            <div class="relative h-48 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center overflow-hidden">
+                                <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300"></div>
+                                <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="{{ $apartment->title }}" class="absolute inset-0 w-full h-full object-cover mix-blend-overlay group-hover:scale-110 transition-transform duration-700">
+                                <span class="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold text-gray-800 shadow-sm">
+                                    @if($apartment->type === 'flat') Квартира
+                                    @elseif($apartment->type === 'house') Дом
+                                    @elseif($apartment->type === 'studio') Студия
+                                    @else Комната @endif
+                                </span>
                             </div>
-                            <div class="p-4">
-                                <div class="flex justify-between items-start mb-2">
-                                    <h3 class="text-lg font-bold text-gray-800">{{ $apartment->title }}</h3>
-                                    <span class="bg-indigo-100 text-indigo-600 px-2 py-1 rounded text-xs">{{ $apartment->type }}</span>
+                            <div class="p-5 flex-grow flex flex-col">
+                                <div class="flex items-center gap-2 text-xs text-indigo-600 font-medium mb-2">
+                                    <i class="fas fa-map-marker-alt"></i> 
+                                    <span>{{ $apartment->city }}</span>
                                 </div>
-                                <p class="text-gray-600 text-sm mb-2"><i class="fas fa-map-marker-alt"></i> {{ $apartment->city }}, {{ Str::limit($apartment->address, 30) }}</p>
-                                <div class="flex items-center space-x-4 text-sm text-gray-600 mb-3">
-                                    <span><i class="fas fa-bed"></i> {{ $apartment->rooms }}</span>
-                                    <span><i class="fas fa-ruler-combined"></i> {{ $apartment->area }} м²</span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <div>
-                                        <span class="text-xl font-bold text-indigo-600">{{ number_format($apartment->price, 0, '', ' ') }} ₽</span>
-                                        <span class="text-gray-500 text-sm">/мес</span>
+                                <h3 class="text-lg font-bold text-gray-900 mb-1 group-hover:text-indigo-600 transition-colors line-clamp-2">{{ $apartment->title }}</h3>
+                                <p class="text-gray-500 text-xs mb-4 line-clamp-1">{{ Str::limit($apartment->address, 30) }}</p>
+                                
+                                <div class="flex items-center justify-between mb-4 py-3 border-y border-gray-100">
+                                    <div class="flex items-center gap-1.5 text-sm text-gray-700">
+                                        <i class="fas fa-door-open text-gray-400"></i>
+                                        <span class="font-medium">{{ $apartment->rooms }}</span>
                                     </div>
-                                    <a href="{{ route('apartments.show', $apartment) }}" class="bg-indigo-600 text-white px-3 py-1 rounded text-sm hover:bg-indigo-700">
-                                        Подробнее
+                                    <div class="flex items-center gap-1.5 text-sm text-gray-700">
+                                        <i class="fas fa-vector-square text-gray-400"></i>
+                                        <span class="font-medium">{{ $apartment->area }} м²</span>
+                                    </div>
+                                    <div class="flex items-center gap-1.5 text-sm text-gray-700">
+                                        <i class="fas fa-layer-group text-gray-400"></i>
+                                        <span class="font-medium">{{ $apartment->floor }} эт.</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-auto flex justify-between items-end">
+                                    <div>
+                                        <p class="text-xs text-gray-500 mb-0.5">В месяц</p>
+                                        <div class="flex items-baseline gap-1">
+                                            <span class="text-xl font-bold text-gray-900">{{ number_format($apartment->price, 0, '', ' ') }} ₽</span>
+                                        </div>
+                                    </div>
+                                    <a href="{{ route('apartments.show', $apartment) }}" class="flex items-center justify-center w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                        <i class="fas fa-arrow-right"></i>
                                     </a>
                                 </div>
                             </div>
