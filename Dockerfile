@@ -20,14 +20,21 @@ COPY . /var/www
 
 WORKDIR /var/www
 
-# Установка зависимостей Laravel
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+# Устанавливаем переменные окружения для Composer
+ENV COMPOSER_ALLOW_SUPERUSER=1
+ENV COMPOSER_MEMORY_LIMIT=-1
 
-# Генерация ключа приложения (если нет)
+# Создаем .env для корректной работы artisan команд во время сборки
+RUN cp .env.example .env
+
+# Установка зависимостей Laravel без dev пакетов для продакшена
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+
+# Генерация ключа приложения
 RUN php artisan key:generate || true
 
-# Открываем порт 8000
-EXPOSE 8000
+# Открываем порт
+EXPOSE ${PORT:-8000}
 
 # Запуск Laravel через встроенный сервер
-CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8000
+CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8000}
