@@ -27,6 +27,9 @@ ENV COMPOSER_MEMORY_LIMIT=-1
 # Создаем .env для корректной работы artisan команд во время сборки
 RUN cp .env.example .env
 
+# Create required Laravel directories
+RUN mkdir -p bootstrap/cache storage/framework/sessions storage/framework/views storage/framework/cache/data storage/logs
+
 # Установка зависимостей Laravel без dev пакетов для продакшена
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
