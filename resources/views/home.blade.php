@@ -26,14 +26,15 @@
             
             <form action="{{ route('apartments.index') }}" method="GET" class="max-w-5xl mx-auto bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20">
                 <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
-                    <div class="md:col-span-2">
-                        <input type="text" name="city" list="cities_list" autocomplete="off" placeholder="Город или район" 
+                    <div class="md:col-span-2 relative" id="citySearchContainer">
+                        <input type="text" name="city" id="cityInput" autocomplete="off" placeholder="Город или район" 
                             class="w-full px-4 py-3 bg-white/90 rounded-xl text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                        <datalist id="cities_list">
-                            @foreach($cities as $cityOption)
-                                <option value="{{ $cityOption }}">
-                            @endforeach
-                        </datalist>
+                        <!-- Dropdown for autocomplete -->
+                        <div id="cityDropdown" class="absolute z-50 w-full mt-1 bg-white rounded-xl shadow-lg border border-gray-100 hidden overflow-hidden">
+                            <ul id="cityList" class="py-2 text-gray-700 text-sm">
+                                <!-- Results injected via JS -->
+                            </ul>
+                        </div>
                     </div>
                     <div>
                         <select name="type" class="w-full px-4 py-3 bg-white/90 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
@@ -230,4 +231,57 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const cityInput = document.getElementById('cityInput');
+    const cityDropdown = document.getElementById('cityDropdown');
+    const cityList = document.getElementById('cityList');
+    let timeoutId;
+
+    cityInput.addEventListener('input', function() {
+        clearTimeout(timeoutId);
+        const query = this.value.trim();
+        
+        if (query.length < 1) {
+            cityDropdown.classList.add('hidden');
+            return;
+        }
+
+        timeoutId = setTimeout(() => {
+            fetch(`/api/cities?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    cityList.innerHTML = '';
+                    if (data.length > 0) {
+                        data.forEach(city => {
+                            const li = document.createElement('li');
+                            li.className = 'px-4 py-2 hover:bg-indigo-50 hover:text-indigo-600 cursor-pointer transition-colors';
+                            li.textContent = city;
+                            li.addEventListener('mousedown', function() {
+                                cityInput.value = city;
+                                cityDropdown.classList.add('hidden');
+                            });
+                            cityList.appendChild(li);
+                        });
+                        cityDropdown.classList.remove('hidden');
+                    } else {
+                        cityDropdown.classList.add('hidden');
+                    }
+                })
+                .catch(err => console.error(err));
+        }, 300); // Debounce
+    });
+
+    cityInput.addEventListener('blur', function() {
+        cityDropdown.classList.add('hidden');
+    });
+
+    cityInput.addEventListener('focus', function() {
+        if (this.value.trim().length > 0 && cityList.children.length > 0) {
+            cityDropdown.classList.remove('hidden');
+        }
+    });
+});
+</script>
 @endsection

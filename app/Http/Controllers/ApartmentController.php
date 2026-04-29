@@ -63,6 +63,7 @@ class ApartmentController extends Controller
             'area' => 'required|integer|min:10',
             'type' => 'required|in:flat,house,room,studio',
             'amenities' => 'nullable|array',
+            'image' => 'nullable|image|max:2048', // 2MB Max
         ]);
 
         $validated['user_id'] = auth()->id();
@@ -71,6 +72,10 @@ class ApartmentController extends Controller
         }
         $validated['status'] = 'available';
         $validated['amenities'] = json_encode($validated['amenities'] ?? []);
+
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('apartments', 'public');
+        }
 
         Apartment::create($validated);
 
@@ -85,5 +90,22 @@ class ApartmentController extends Controller
             ->paginate(10);
 
         return view('apartments.my', compact('apartments'));
+    }
+
+    public function searchCities(Request $request)
+    {
+        $query = $request->get('q');
+        
+        if (!$query) {
+            return response()->json([]);
+        }
+
+        $cities = Apartment::where('city', 'like', "%{$query}%")
+            ->where('status', 'available')
+            ->distinct()
+            ->limit(5)
+            ->pluck('city');
+
+        return response()->json($cities);
     }
 }

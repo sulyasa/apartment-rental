@@ -9,12 +9,28 @@ use Illuminate\Support\Facades\Auth;
 
 class BookingController extends Controller
 {
+    public function create(Request $request, Apartment $apartment)
+    {
+        $validated = $request->validate([
+            'check_in' => 'required|date|after:today',
+            'check_out' => 'required|date|after:check_in',
+        ]);
+
+        $checkInDate = \Carbon\Carbon::parse($validated['check_in']);
+        $checkOutDate = \Carbon\Carbon::parse($validated['check_out']);
+        $nights = $checkInDate->diffInDays($checkOutDate);
+        $totalPrice = $apartment->price * $nights;
+
+        return view('bookings.checkout', compact('apartment', 'checkInDate', 'checkOutDate', 'nights', 'totalPrice'));
+    }
+
     public function store(Request $request, Apartment $apartment)
     {
         $validated = $request->validate([
             'check_in' => 'required|date|after:today',
             'check_out' => 'required|date|after:check_in',
             'notes' => 'nullable|string|max:500',
+            'payment_method' => 'required|string',
         ]);
 
         $checkInDate = \Carbon\Carbon::parse($validated['check_in']);
@@ -33,7 +49,7 @@ class BookingController extends Controller
         ]);
 
         return redirect()->route('bookings.my')
-            ->with('success', 'Бронирование создано! Ожидайте подтверждения.');
+            ->with('success', 'Бронирование успешно оплачено и создано! Ожидайте подтверждения от владельца.');
     }
 
     public function myBookings()

@@ -13,12 +13,14 @@ Route::get('/apartments/{apartment}', [ApartmentController::class, 'show'])->nam
 
 Route::get('/agents', [AgentController::class, 'index'])->name('agents.index');
 Route::get('/agents/{agent}', [AgentController::class, 'show'])->name('agents.show');
+Route::get('/api/cities', [ApartmentController::class, 'searchCities'])->name('api.cities');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/apartments/my/list', [ApartmentController::class, 'myApartments'])->name('apartments.my');
     Route::get('/apartment/create', [ApartmentController::class, 'create'])->name('apartments.create');
     Route::post('/apartments', [ApartmentController::class, 'store'])->name('apartments.store');
     
+    Route::get('/apartments/{apartment}/book', [BookingController::class, 'create'])->name('bookings.create');
     Route::post('/apartments/{apartment}/book', [BookingController::class, 'store'])->name('bookings.store');
     Route::get('/my-bookings', [BookingController::class, 'myBookings'])->name('bookings.my');
     Route::post('/bookings/{booking}/cancel', [BookingController::class, 'cancel'])->name('bookings.cancel');

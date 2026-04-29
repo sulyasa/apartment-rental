@@ -7,7 +7,7 @@
     <div class="bg-white rounded-lg shadow-lg p-8">
         <h1 class="text-2xl font-bold mb-8">Добавить новую квартиру</h1>
         
-        <form method="POST" action="{{ route('apartments.store') }}">
+        <form method="POST" action="{{ route('apartments.store') }}" enctype="multipart/form-data">
             @csrf
             
             <div class="mb-6">
@@ -83,6 +83,15 @@
                         </label>
                     @endforeach
                 </div>
+            </div>
+
+            <div class="mb-8">
+                <label class="block text-sm font-medium mb-2">Фотография квартиры</label>
+                <input type="file" name="image" accept="image/*" class="w-full px-4 py-2 border rounded-lg focus:outline-none text-gray-700 bg-gray-50">
+                <p class="text-xs text-gray-500 mt-1">Поддерживаемые форматы: JPG, PNG. Макс размер: 2 МБ.</p>
+                @error('image')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
             </div>
             
             <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 font-semibold">

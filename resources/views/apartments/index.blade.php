@@ -17,9 +17,13 @@
                     <a href="{{ route('apartments.index') }}" class="text-sm text-indigo-600 hover:underline">Сбросить</a>
                 </div>
                 <form action="{{ route('apartments.index') }}" method="GET">
-                    <div class="mb-4">
+                    <div class="mb-4 relative" id="citySearchContainer">
                         <label class="block text-sm font-medium mb-2">Город</label>
-                        <input type="text" name="city" value="{{ request('city') }}" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="Введите город">
+                        <input type="text" name="city" id="cityInput" autocomplete="off" value="{{ request('city') }}" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="Введите город">
+                        <!-- Dropdown -->
+                        <div id="cityDropdown" class="absolute z-50 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-100 hidden overflow-hidden">
+                            <ul id="cityList" class="py-1 text-gray-700 text-sm"></ul>
+                        </div>
                     </div>
                     <div class="mb-4">
                         <label class="block text-sm font-medium mb-2">Тип жилья</label>
@@ -122,4 +126,57 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const cityInput = document.getElementById('cityInput');
+    const cityDropdown = document.getElementById('cityDropdown');
+    const cityList = document.getElementById('cityList');
+    let timeoutId;
+
+    cityInput.addEventListener('input', function() {
+        clearTimeout(timeoutId);
+        const query = this.value.trim();
+        
+        if (query.length < 1) {
+            cityDropdown.classList.add('hidden');
+            return;
+        }
+
+        timeoutId = setTimeout(() => {
+            fetch(`/api/cities?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    cityList.innerHTML = '';
+                    if (data.length > 0) {
+                        data.forEach(city => {
+                            const li = document.createElement('li');
+                            li.className = 'px-3 py-2 hover:bg-indigo-50 hover:text-indigo-600 cursor-pointer transition-colors';
+                            li.textContent = city;
+                            li.addEventListener('mousedown', function() {
+                                cityInput.value = city;
+                                cityDropdown.classList.add('hidden');
+                            });
+                            cityList.appendChild(li);
+                        });
+                        cityDropdown.classList.remove('hidden');
+                    } else {
+                        cityDropdown.classList.add('hidden');
+                    }
+                })
+                .catch(err => console.error(err));
+        }, 300);
+    });
+
+    cityInput.addEventListener('blur', function() {
+        cityDropdown.classList.add('hidden');
+    });
+
+    cityInput.addEventListener('focus', function() {
+        if (this.value.trim().length > 0 && cityList.children.length > 0) {
+            cityDropdown.classList.remove('hidden');
+        }
+    });
+});
+</script>
 @endsection
