@@ -17,7 +17,9 @@ class BookingController extends Controller
             'notes' => 'nullable|string|max:500',
         ]);
 
-        $nights = $validated['check_in']->diffInDays($validated['check_out']);
+        $checkInDate = \Carbon\Carbon::parse($validated['check_in']);
+        $checkOutDate = \Carbon\Carbon::parse($validated['check_out']);
+        $nights = $checkInDate->diffInDays($checkOutDate);
         $totalPrice = $apartment->price * $nights;
 
         Booking::create([

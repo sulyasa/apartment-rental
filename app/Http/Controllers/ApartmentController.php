@@ -66,6 +66,9 @@ class ApartmentController extends Controller
         ]);
 
         $validated['user_id'] = auth()->id();
+        if (auth()->user() && auth()->user()->isAgent()) {
+            $validated['agent_id'] = auth()->id();
+        }
         $validated['status'] = 'available';
         $validated['amenities'] = json_encode($validated['amenities'] ?? []);
 

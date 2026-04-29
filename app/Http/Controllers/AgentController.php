@@ -78,6 +78,10 @@ class AgentController extends Controller
 
     public function updateBookingStatus(Booking $booking, Request $request)
     {
+        if ($booking->apartment->agent_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $request->validate([
             'status' => 'required|in:confirmed,cancelled',
         ]);
